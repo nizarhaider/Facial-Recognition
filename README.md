@@ -21,3 +21,17 @@ HOW TO USE:
 1) Create folder of known faces in a directory and another for templates of ID's that can be used to register new user.
 2) Link the folders to the pathways in the main.py code
 3) Link output to a folder as well
+
+
+
+
+
+
+Required Libraries:
+
+1) OpenCV
+2) Pytesseract
+3) Face-Recognition
+4) Cmake
+5) dlib
+6) numpy
