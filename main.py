@@ -4,7 +4,7 @@ import numpy as np
 import os
 from datetime import datetime
 import pytesseract
-pytesseract.pytesseract.tesseract_cmd = 'C:\Program Files\Tesseract-Registration\\tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
 
 
 path = 'ImagesAttendance'
@@ -92,7 +92,7 @@ def findID(img,desList):
         pass
 
     if len(matchList)!=0:
-        if max(matchList) > 30:
+        if max(matchList) > 16:
             finalvalue = matchList.index((max(matchList)))
     return finalvalue
 
@@ -100,7 +100,7 @@ def findID(img,desList):
 
 desList = findDes(images)
 # print(len(desList))
-
+count = 0
 
 
 
@@ -131,16 +131,41 @@ while True:
             ### ID Authentication
             print("SHOW ID")
             while True:
-                success2, img = cap.read()
-                id = findID(img, desList)
-                count = 0
+                success2, img2 = cap.read()
+                id = findID(img2, desList)
+
+                ### OCR
+
+                himg, wing, _ = img2.shape
+                boxes = pytesseract.image_to_data(img2)
+                # print(boxes)
+                for x, b in enumerate(boxes.splitlines()):
+                    if x != 0:
+                        b = b.split()
+                        # print(b)
+                        if len(b) == 12:
+                            x, y, w, h = int(b[6]), int(b[7]), int(b[8]), int(b[9])
+                            cv2.rectangle(img2, (x, y), (w + x, y + h), (0, 0, 255), 1)
+                            cv2.putText(img2, b[11], (x, y), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (50, 50, 255), 2)
+
+                ### OCR
+
+
                 if id != -1:
                     count = count + 1
-                    cv2.putText(img, classNames[id], (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+                    cv2.putText(img2, classNames[id], (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
                     print("ID Authenticated")
-                    cv2.imwrite('Saved ID/ID'+'count'+".jpg",img )
+                    cv2.imwrite('Saved ID/ID'+str(count)+".jpg", img2)
+
+
+
+                    # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+
+                    cv2.imwrite('ImagesAttendance/user' + str(count) + ".jpg", imgS)
                     break
-                cv2.imshow('Authentication', img)
+
+                cv2.imshow('Authentication', img2)
                 cv2.waitKey(1)
         elif matches[matchIndex]:
             name = classNamesfr[matchIndex].upper()
